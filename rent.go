@@ -26,7 +26,7 @@ var memes = [...]string{
 
 func check(key, msg string) {
     if os.Getenv(key) == "" {
-        fmt.Print("environment key %s not set -- %s\n", key, msg)
+        fmt.Printf("environment key %s not set -- %s\n", key, msg)
         os.Exit(1)
     }
 }
