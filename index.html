@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>rent</title>
+        <style>
+            html {
+                font-family: monospace;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>rent</h1>
+
+        <form action="/mail" method="post" accept-charset="utf-8">
+            <label>period:</label>
+            <input type="month" name="period" />
+
+            <h2>expenses</h2>
+
+            <label>rent:</label>
+            <input type="number" name="rent" value="0"/>
+
+            <label>telge:</label>
+            <input type="number" name="telge" value="0"/>
+
+            <label>kraftringen:</label>
+            <input type="number" name="kraft" value="0"/>
+
+            <h2>allocation</h2>
+            <table>
+                <thead>
+                    <th>name</th>
+                    <th>rent</th>
+                    <th>telge</th>
+                    <th>kraft</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>smeets</td>
+                        <td><input type="number" name="smeets-rent" value="0"/></td>
+                        <td><input type="number" name="smeets-telge" value="0"/></td>
+                        <td><input type="number" name="smeets-kraft" value="0"/></td>
+                    </tr>
+                    <tr>
+                        <td>mårten</td>
+                        <td><input type="number" name="mårten-rent" value="0"/></td>
+                        <td><input type="number" name="mårten-telge" value="0"/></td>
+                        <td><input type="number" name="mårten-kraft" value="0"/></td>
+                    </tr>
+                    <tr>
+                        <td>krillz</td>
+                        <td><input type="number" name="krillz-rent" value="0"/></td>
+                        <td><input type="number" name="krillz-telge" value="0"/></td>
+                        <td><input type="number" name="krillz-kraft" value="0"/></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>delivery</h2>
+            <input type="email" name="smeets" placeholder="smeets@addr"/>
+            <input type="email" name="mårten" placeholder="mårten@addr"/>
+            <input type="email" name="krillz" placeholder="krillz@addr"/>
+
+            <h2>report</h2>
+            <input type="submit" value="send report"/>
+        </form>
+
+        <script type="text/javascript">
+            var people = ["smeets", "mårten", "krillz"]
+            function $(q) { return document.querySelector(q) }
+
+            function defaults() {
+                var today = new Date()
+
+                var period = $("input[name='period']")
+                period.value = today.getFullYear() + "-" + (today.getMonth() + 1)
+            }
+
+            function rent() {
+                var total = Number(this.value)
+                var split = total / 3
+                $("input[name='smeets-rent']").value = Math.round(split + 100)
+                $("input[name='krillz-rent']").value = Math.round(split + 100)
+                $("input[name='mårten-rent']").value = Math.round(split - 200)
+            }
+
+            function telge() {
+                var total = Number(this.value)
+                var split = Math.round(total / 3)
+                people.forEach(name => $("input[name='" + name + "-telge']").value = split)
+            }
+
+            function kraft() {
+                var total = Number(this.value)
+                var split = Math.round(total / 3)
+                people.forEach(name => $("input[name='" + name + "-kraft']").value = split)
+            }
+
+            window.addEventListener('load', defaults, false)
+
+            $("input[name='rent']").addEventListener('keyup', rent, false)
+            $("input[name='telge']").addEventListener('keyup', telge, false)
+            $("input[name='kraft']").addEventListener('keyup', kraft, false)
+        </script>
+    </body>
+</html>

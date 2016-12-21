@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html>
+<head></head>
+<body>
+<pre>
+{{.Who}} // {{.Period}}
+
+Hyra:         {{.Rent}} kr
+Telge Energi: {{.Telge}} kr
+Kraftringen:  {{.Kraft}} kr
+Totalt:       {{.Total}} kr
+
+<a href="{{.Meme}}">You pay now!!</a>
+</pre>
+</body>
+</html>
