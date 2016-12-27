@@ -47,7 +47,7 @@ func initLogFile() {
 	checkError(err)
 
 	if fi.Size() == 0 {
-		fmt.Printf("Created log file log.csv")
+		fmt.Printf("Created log file log.csv\n")
 		w := csv.NewWriter(log)
 		defer w.Flush()
 		var ref = Report{}
