@@ -3,6 +3,7 @@ package main
 import (
         "fmt"
         "text/template"
+        "github.com/atotto/encoding/csv"
         "net/http"
         "net/smtp"
         "math/rand"
@@ -31,6 +32,29 @@ func check(key, msg string) {
     }
 }
 
+func checkError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func initLogFile() {
+	log, err := os.OpenFile("log.csv", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0660)
+	checkError(err)
+	defer log.Close()
+
+    fi, err := log.Stat()
+	checkError(err)
+
+	if fi.Size() == 0 {
+		fmt.Printf("Created log file log.csv")
+		w := csv.NewWriter(log)
+		defer w.Flush()
+		var ref = Report{}
+		w.WriteStructHeader(ref)
+	}
+}
+
 func main() {
 
     check("USERNAME", "email server username, e.g. user.name")
@@ -39,8 +63,12 @@ func main() {
     check("SENDER", "email address of sender, e.g. user.name@service.com")
     check("ADDRESS", "email server address, e.g. mail.service.com:25")
 
+    initLogFile()
+
     http.HandleFunc("/", root)
     http.HandleFunc("/mail", mail)
+    http.HandleFunc("/logs", logs)
+    http.HandleFunc("/logs.csv", logfile)
 
     panic(http.ListenAndServe(GetPort(), nil))
 }
@@ -58,6 +86,16 @@ func root(w http.ResponseWriter, r *http.Request) {
     file, _ := os.Open("index.html")
     defer file.Close()
     io.Copy(w, file)
+}
+
+func logs(w http.ResponseWriter, r *http.Request) {
+	file, _ := os.Open("logs.html")
+    defer file.Close()
+    io.Copy(w, file)
+}
+
+func logfile(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, "log.csv")
 }
 
 type Report struct {
@@ -85,6 +123,17 @@ func GetTemplate() (*template.Template, error) {
 func numeric(str string) int {
     i, _ := strconv.Atoi(str)
     return i
+}
+
+func logReport(report Report) {
+    log, err := os.OpenFile("log.csv", os.O_RDWR|os.O_APPEND, 0660);
+    checkError(err)
+    defer log.Close()
+
+    w := csv.NewWriter(log)
+	defer w.Flush()
+
+	w.WriteStruct(report)
 }
 
 func mail(w http.ResponseWriter, r *http.Request) {
@@ -148,5 +197,7 @@ func mail(w http.ResponseWriter, r *http.Request) {
 
         templ.Execute(w, report)
         w.Write([]byte("\n"))
+
+        logReport(report)
     }
 }

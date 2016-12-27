@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>rent</title>
+        <style>
+            html { font-family: monospace; }
+            h1 { display: inline-block; }
+            th[data-dir="1"]:after { content: "▲"; margin-left: 0.1em; }
+            th[data-dir="-1"]:after { content: "▼"; margin-left: 0.1em; }
+            th:hover { cursor: pointer; }
+            th, td { padding-left: 0.5em; padding-right: 0.5em; }
+        </style>
+    </head>
+    <body>
+        <h1><a href="/">rent</a></h1>
+        <h1>logs</h1>
+
+        <script type="text/javascript">
+            var dataset = { headers: [], reports: [] }
+
+            function el(e, fn) {
+                return function(data) {
+                    var d = document.createElement(e)
+                    for (var i = 0; i < data.length; i++) {
+                        d.appendChild(fn(data[i], i))
+                    }
+                    return d
+                }
+            }
+
+            function resetSort() {
+                var ths = document.querySelectorAll("th")
+                for (var i = 0; i < ths.length; i++) {
+                    ths[i].dataset.dir = 0
+                }
+            }
+
+            function sort() {
+                var field = Number(this.dataset.field)
+                var dir = Number(this.dataset.dir) || 1
+                resetSort()
+                this.dataset.dir = -dir
+                sortByField(field, dir)
+            }
+
+            function th(header, idx) {
+                var h = document.createElement('th')
+                h.appendChild(document.createTextNode(header))
+                h.dataset.field = idx
+                h.dataset.dir = 0
+                h.addEventListener('click', sort, false)
+                return h
+            }
+
+            function a(href) {
+                var p = document.createElement('a')
+                p.appendChild(document.createTextNode(href))
+                p.href = href
+                return p
+            }
+
+            function td(data, i) {
+                var h = document.createElement('td')
+                if (data.indexOf("://") > 0) {
+                    h.appendChild(a(data))
+                } else {
+                    h.appendChild(document.createTextNode(data))
+                }
+                return h
+            }
+
+            var thead = el('thead', th)
+            var tr = el('tr', td)
+            var tbody = el('tbody', tr)
+
+            function strcmp(a, b) {
+                var i = 0
+                var n = Math.max(a.length, b.length)
+
+                while (i < n && a.charAt(i) === b.charAt(i))
+                    i++
+
+                if (i === n) return 0
+
+                if (a.length > b.length) return -1
+                else if (a.length < b.length) return 1
+                else return a.charAt(i) > b.charAt(i) ? -1 : 1
+            }
+
+            function table() {
+                var t = document.createElement('table')
+                t.appendChild(thead(dataset.headers))
+                t.appendChild(tbody(dataset.reports))
+                return t
+            }
+
+            function sortByField(field, dir) {
+                var table = document.querySelector("table")
+                table.removeChild(table.querySelector("tbody"))
+
+                var cmp = function (a, b) {
+                    return strcmp(a[field], b[field]) * dir
+                }
+
+                dataset.reports.sort(cmp)
+
+                table.appendChild(tbody(dataset.reports))
+            }
+
+            function setup(text) {
+                var newline = text.indexOf("\n")
+                dataset.headers = text.substring(0, newline).split(',')
+
+                var oldline = newline + 1
+                while ((newline = text.indexOf("\n", oldline)) >= 0) {
+                    dataset.reports.push(text.substring(oldline, newline).split(','))
+                    oldline = newline + 1
+                }
+
+                document.body.appendChild(table())
+            }
+
+            function load() {
+                var xhr = new XMLHttpRequest()
+                xhr.onload = function () {
+                    setup(xhr.responseText)
+                }
+                xhr.open("GET", "/logs.csv")
+                xhr.send()
+            }
+
+            window.addEventListener('load', load, false)
+        </script>
+    </body>
+</html>
