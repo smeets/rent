@@ -10,6 +10,10 @@ Telge Energi: {{.Telge}} kr
 Kraftringen:  {{.Kraft}} kr
 Totalt:       {{.Total}} kr
 
+Hyran är för {{.Period}}.
+Telge Energi är förra månadens el.
+Kraftringen fakutrerar varannan månad.
+
 <a href="{{.Meme}}">You pay now!!</a>
 </pre>
 </body>
