@@ -12,18 +12,13 @@ import (
         "io"
         "io/ioutil"
         "bytes"
+
+        "github.com/smeets/memes"
 )
 
 const mime string = "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n";
 
 var people = [...]string{"smeets", "mårten", "krillz"}
-
-var memes = [...]string{
-    "https://cdn.meme.am/cache/instances/folder27/56063027.jpg",
-    "https://cdn.meme.am/cache/instances/folder421/63236421.jpg",
-    "https://cdn.meme.am/instances/500x/50336569.jpg",
-    "http://atom.smasher.org/chinese/chinese.jpg.php?n=&l1=you+pay+now!",
-}
 
 func check(key, msg string) {
     if os.Getenv(key) == "" {
@@ -145,6 +140,13 @@ func mail(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    imgflip, err := memes.GetMemes()
+    if err != nil {
+        fmt.Print(err)
+        fmt.Fprint(w, err)
+        return
+    }
+
     period := r.FormValue("period")
     subject := "Life of a spartan - hyra " + period
 
@@ -175,7 +177,7 @@ func mail(w http.ResponseWriter, r *http.Request) {
             Kraft: kraft,
             Telge: telge,
             Total: rent + kraft + telge,
-            Meme: memes[rand.Intn(len(memes))],
+            Meme: imgflip[rand.Intn(len(imgflip))].URL,
         }
 
         err = templ.Execute(&doc, report)
