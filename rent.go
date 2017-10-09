@@ -97,7 +97,7 @@ type Report struct {
     Period, Who string
     Rent, Telge, Kraft int
     Total int
-    Meme string
+    Meme, Caption string
 }
 
 func GetTemplate() (*template.Template, error) {
@@ -170,6 +170,7 @@ func mail(w http.ResponseWriter, r *http.Request) {
         doc.WriteString("To: " + addr + "\nSubject: " + subject + "\n")
         doc.WriteString(mime)
 
+        meme := imgflip[rand.Intn(len(imgflip))]
         report := Report{
             Who: name,
             Period: period,
@@ -177,7 +178,8 @@ func mail(w http.ResponseWriter, r *http.Request) {
             Kraft: kraft,
             Telge: telge,
             Total: rent + kraft + telge,
-            Meme: imgflip[rand.Intn(len(imgflip))].URL,
+            Meme: meme.URL,
+            Caption: meme.Name,
         }
 
         err = templ.Execute(&doc, report)
